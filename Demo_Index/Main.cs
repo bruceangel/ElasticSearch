@@ -1,5 +1,6 @@
 ﻿using Elasticsearch.Net;
 using Nest;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -37,13 +38,13 @@ namespace Demo_Index
             for (int i = 1; i <= 100; i++)
             {
                 info = new UserInfo();
-                info.UserID = i ;
+                info.UserID = i;
                 info.UserName = "笑傲江湖" + i;
                 info.Age = 2 * i;
                 info.AddTime = DateTime.Now;
                 info.Year = 2016;
                 info.IsDeleted = 0;
-                list.Add(info);               
+                list.Add(info);
             }
 
             //client.IndexMany(list, index: "test1");
@@ -141,7 +142,7 @@ namespace Demo_Index
         /// <param name="e"></param>
         private void btnSearch1_Click(object sender, EventArgs e)
         {
-            var node = new Uri("http://localhost:9200");            
+            var node = new Uri("http://localhost:9200");
             var settings = new ConnectionSettings(node);
             var client = new ElasticClient(settings);
 
@@ -216,19 +217,107 @@ namespace Demo_Index
             var node = new Uri("http://localhost:9200");
             var settings = new ConnectionSettings(node);
             var client = new ElasticClient(settings);
-
+            //1
             client.Delete<UserInfo>(new UserInfo() { UserID = 100 }, o => o.Index("test2"));
-
+            //2
             DocumentPath<UserInfo> deletePath = new DocumentPath<UserInfo>(1);
-            client.Delete(deletePath,o=>o.Index("test1"));
-
+            client.Delete(deletePath, o => o.Index("test1"));
+            //3
             IDeleteRequest request = new DeleteRequest("test1", "userinfo", 2);
             client.Delete(request);
 
             this.txtResult.Text = "[删除-唯一ID]成功！";
         }
 
-      
+        /// <summary>
+        /// 更新-全部
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnUpdate1_Click(object sender, EventArgs e)
+        {
+            //单node
+            var node = new Uri("http://localhost:9200");
+            var settings = new ConnectionSettings(node).DefaultIndex("test2");
+            var client = new ElasticClient(settings);
+
+            DocumentPath<UserInfo> updatePath = new DocumentPath<UserInfo>(1);
+            //1
+            UserInfo info = new UserInfo()
+            {
+                UserName = "第一次新更改的名称...",
+                Year = 2017
+            };
+            client.Update(updatePath, p => p.Doc(info));
+            //2
+            updatePath = new DocumentPath<UserInfo>(2);
+            IUpdateRequest<UserInfo, UserInfo> request = new UpdateRequest<UserInfo, UserInfo>(updatePath, "test2")
+            {
+                Doc = new UserInfo()
+                {
+                    UserName = "第二次新更改的名称...",
+                    Year = 2014
+                }
+            };
+            var response = client.Update<UserInfo, UserInfo>(request);
+            //var response = client.Update<UserInfo, UserInfo>(updatePath, x => x.Doc(new UserInfo() { UserName = "第二次新更改的名称..." }));
+
+            this.txtResult.Text = "[更新-全部]成功！";
+        }
+
+        /// <summary>
+        /// 更新-部分
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnUpdate2_Click(object sender, EventArgs e)
+        {
+            //单node
+            var node = new Uri("http://localhost:9200");
+            var settings = new ConnectionSettings(node).DefaultIndex("test2");
+            var client = new ElasticClient(settings);
+
+            //疑问？无论是UserName还是Name都无法更新这个字段
+            DocumentPath<UserInfo> updatePath = new DocumentPath<UserInfo>(3);
+            client.Update<UserInfo, object>(updatePath, x => x.Doc(new { UserName = "第三次新更改的名称...", Year = 20133, UserID = 3 }));
+            //等价于
+            updatePath = new DocumentPath<UserInfo>(4);
+            IUpdateRequest<UserInfo, object> request = new UpdateRequest<UserInfo, object>(updatePath)
+            {
+                Doc = new
+                {
+                    UserName = "第四次新更改的名称...",
+                    Year=20144,
+                    UserID=4
+                }
+            };
+            var response = client.Update(request);
+
+            this.txtResult.Text = "[更新-部分]成功！";
+        }
+
+        /// <summary>
+        /// 根据唯一ID获取
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnGetID1_Click(object sender, EventArgs e)
+        {
+            //单node
+            var node = new Uri("http://localhost:9200");
+            var settings = new ConnectionSettings(node).DefaultIndex("test2");
+            var client = new ElasticClient(settings);
+
+            //单个
+            var result1 = client.Get(new DocumentPath<UserInfo>(4));
+            var result2 = client.Get(new DocumentPath<UserInfo>(4), o => o.Index("test2").Type("userinfo"));
+            //多个
+            var result3 = client.MultiGet(m => m.GetMany<UserInfo>(new List<long> { 4,5,6,7}));
+
+            this.txtResult.Text = JsonConvert.SerializeObject(result1.Source);
+        }
+
+
     }
 
     /// <summary>
@@ -244,17 +333,17 @@ namespace Demo_Index
         /// </summary>
         [String(Name = "Name")]
         public string UserName { get; set; }
-        [String(Name="Age")]
+        [String(Name = "Age")]
         public int Age { get; set; }
-        [Date(Format="yyyy-MM-dd")]
+        [Date(Format = "ddmmyyyy")]
         public DateTime AddTime { get; set; }
         /// <summary>
         /// 如果string 类型的字段不需要被分析器拆分，要作为一个正体进行查询，需标记此声明，
         /// 否则索引的值将被分析器拆分.
         /// </summary>
-        [String(Index=FieldIndexOption.NotAnalyzed)]
+        [String(Index = FieldIndexOption.NotAnalyzed)]
         public string Description { get; set; }
-        public int Year { get; set; }        
+        public int Year { get; set; }
         public int IsDeleted { get; set; }
         /// <summary>
         /// 如需使用坐标点类型需添加坐标点特性，在maping时会自动映射类型
