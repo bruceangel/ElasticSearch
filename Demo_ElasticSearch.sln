@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo_ElasticSearchV1", "Dem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo_Index", "Demo_Index\Demo_Index.csproj", "{23D8BAB0-B263-4A4D-BCF8-9932DE4ED5A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZXXK_Index", "ZXXK_Index\ZXXK_Index.csproj", "{454EBBBE-EDBC-4247-B1F5-0DA4549EFFDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{23D8BAB0-B263-4A4D-BCF8-9932DE4ED5A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23D8BAB0-B263-4A4D-BCF8-9932DE4ED5A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23D8BAB0-B263-4A4D-BCF8-9932DE4ED5A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{454EBBBE-EDBC-4247-B1F5-0DA4549EFFDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{454EBBBE-EDBC-4247-B1F5-0DA4549EFFDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{454EBBBE-EDBC-4247-B1F5-0DA4549EFFDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{454EBBBE-EDBC-4247-B1F5-0DA4549EFFDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
