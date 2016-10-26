@@ -74,6 +74,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="测试数据\测试表数据.rar" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
