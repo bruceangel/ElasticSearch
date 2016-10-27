@@ -115,6 +115,8 @@ namespace ZXXK_Index
         {
             int curTotal = 0;//单次累加个数
             int sumTotal = softList.Count;//单次总个数
+
+            //方法一
             for (int i = 0; i < sumTotal; i++)
             {
                 curTotal++;
@@ -126,6 +128,10 @@ namespace ZXXK_Index
                 SetTextMesssage(100 * (i + 1) / sumTotal, "索引：" + curTotal + "   ID：" + softList[i].SoftID, sumTotal, i + 1);
                 SetTextMesssageAll(100 * curTotal / totalNumber, totalNumber, curTotal);
             }
+            
+            //方法二
+
+
         }
 
         /// <summary>
