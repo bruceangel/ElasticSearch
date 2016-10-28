@@ -120,19 +120,32 @@ namespace ZXXK_Index
             for (int i = 0; i < sumTotal; i++)
             {
                 curTotal++;
-
                 //写入索引
                 client.Index(softList);
-
                 //进度显示
                 SetTextMesssage(100 * (i + 1) / sumTotal, "索引：" + curTotal + "   ID：" + softList[i].SoftID, sumTotal, i + 1);
                 SetTextMesssageAll(100 * curTotal / totalNumber, totalNumber, curTotal);
             }
-            
+
             //方法二
-
-
+            double baseNum = 100;
+            int sumTotalSecond = (int)Math.Ceiling(sumTotal / baseNum);
+            for (int i = 0; i < sumTotal; i++)
+            {
+                curTotal += (int)baseNum;
+                //写入索引
+                client.IndexMany(softList);
+                
+            }
         }
+
+        //private List<Soft> PartialSoftList(List<Soft> softList)
+        //{
+        //    for (int i = 0; i < softList.Count; i++)
+        //    {
+
+        //    }
+        //}
 
         /// <summary>
         /// 进度显示-总
