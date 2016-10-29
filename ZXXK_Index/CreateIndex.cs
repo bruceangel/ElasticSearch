@@ -30,6 +30,8 @@ namespace ZXXK_Index
         private delegate void SetPos(int ipos, string vinfo, int totalNumber, int curTotal);
         //线程
         private Thread runThread;
+        //ES客户端
+        private IElasticClient client;
 
         //业务类
         private SoftDal tSoft = new SoftDal();
@@ -51,6 +53,8 @@ namespace ZXXK_Index
             //校验          
             if (CheckValue())
             {
+                WriteLog("创建索引开始...");
+
                 //开启线程
                 runThread = new Thread(new ThreadStart(CreateIndexData));
                 runThread.Start();
@@ -64,23 +68,25 @@ namespace ZXXK_Index
         {
             //创建ES连接
             var node = new Uri(Config.GetElasticSearchUrl);
+            //var settings = new ConnectionSettings(node);
             var settings = new ConnectionSettings(node).DefaultIndex(_indexName);
-            IElasticClient client = new ElasticClient(settings);
+            client = new ElasticClient(settings);
 
             //获取表数据分页参数
             BaseModel model = new BaseModel();
             model.PageSize = _pageSize;
 
-            //获取表总数量
-            int totalNumber = tSoft.GetSoftCount();
-            if (totalNumber <= 0)
+            //总（总个数和当前个数）
+            int sumTotalParent = tSoft.GetSoftCount();//获取表总数量
+            int curTotalParent = 0;
+            if (sumTotalParent <= 0)
             {
                 ConsoleWriteResult("查找表" + _tableName + "数据为空！");
                 return;
             }
 
             //循环次数
-            int loopCount = (int)Math.Ceiling(totalNumber / _pageSize * 1.0);
+            int loopCount = (int)Math.Ceiling(sumTotalParent * 1.0 / _pageSize);
             List<Soft> softList = null;
             try
             {
@@ -90,8 +96,15 @@ namespace ZXXK_Index
                     softList = tSoft.GetSoftList(model);
                     if (softList != null && softList.Count > 0)
                     {
+                        //方式1：写入索引
+                        //WriteIndex(sumTotalParent, softList, ref curTotalParent);
+
+                        //方式2：写入索引
+                        curTotalParent += softList.Count;
                         //写入索引
-                        WriteIndex(totalNumber, softList,client);
+                        client.IndexMany(softList);
+                        //进度显示
+                        SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
                     }
                 }
             }
@@ -102,7 +115,7 @@ namespace ZXXK_Index
                 runThread.Join();
             }
             runThread.Interrupt();//结束线程
-            runThread.Join();
+            //runThread.Join();////使调用线程runThread在此之前执行完毕。t.join(1000); //等待 t 线程，等待时间是1000毫秒；
         }
 
         /// <summary>
@@ -111,41 +124,70 @@ namespace ZXXK_Index
         /// <param name="totalNumber">表总个数</param>
         /// <param name="softList">单次资料集合</param>
         /// <returns></returns>
-        private void WriteIndex(int totalNumber, List<Soft> softList, IElasticClient client)
+        private void WriteIndex(int sumTotalParent, List<Soft> softList, ref int curTotalParent)
         {
-            int curTotal = 0;//单次累加个数
-            int sumTotal = softList.Count;//单次总个数
+            //子（总个数和当前个数）            
+            int sumTotalChild = softList.Count;//单次总个数
+            int curTotalChild = 0;//单次累加个数
+                        
+            //方法一：单个插入
+            //for (int i = 0; i < sumTotalChild; i++)
+            //{
+            //    curTotalChild++;
+            //    curTotalParent++;
+            //    //写入索引
+            //    client.Index(softList[i]);
+            //    //进度显示
+            //    SetTextMesssage(100 * (i + 1) / sumTotalChild, "总索引：" + curTotalParent + "   子索引：" + curTotalChild + "   ID：" + softList[i].SoftID, sumTotalChild, i + 1);
+            //    SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
+            //}
 
-            //方法一
-            for (int i = 0; i < sumTotal; i++)
+            //方法二：批量插入
+            int baseNum = 300;//一次插入索引中的数量
+            int sumTotalSecond = (int)Math.Ceiling(sumTotalChild * 1.0 / baseNum);
+            int currNum = 0;
+            for (int i = 0; i < sumTotalSecond; i++)
             {
-                curTotal++;
+                int resultListCount = 0;
                 //写入索引
-                client.Index(softList);
+                client.IndexMany(PartialSoftList(softList, baseNum, ref currNum, out resultListCount));
+                curTotalChild += resultListCount;
+                curTotalParent += resultListCount;
                 //进度显示
-                SetTextMesssage(100 * (i + 1) / sumTotal, "索引：" + curTotal + "   ID：" + softList[i].SoftID, sumTotal, i + 1);
-                SetTextMesssageAll(100 * curTotal / totalNumber, totalNumber, curTotal);
-            }
-
-            //方法二
-            double baseNum = 100;
-            int sumTotalSecond = (int)Math.Ceiling(sumTotal / baseNum);
-            for (int i = 0; i < sumTotal; i++)
-            {
-                curTotal += (int)baseNum;
-                //写入索引
-                client.IndexMany(softList);
-                
+                SetTextMesssage(100 * (i * baseNum + resultListCount) / sumTotalChild, "总索引：" + curTotalParent + "   子索引：" + curTotalChild + "   IDCounts：" + resultListCount, sumTotalChild, i * baseNum + resultListCount);
+                SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
             }
         }
 
-        //private List<Soft> PartialSoftList(List<Soft> softList)
-        //{
-        //    for (int i = 0; i < softList.Count; i++)
-        //    {
-
-        //    }
-        //}
+        /// <summary>
+        /// 子进度二次封装
+        /// </summary>
+        /// <param name="softList"></param>
+        /// <param name="baseNum"></param>
+        /// <param name="currNum"></param>
+        /// <param name="num"></param>
+        /// <returns></returns>
+        private List<Soft> PartialSoftList(List<Soft> softList, int baseNum,ref int currNum,out int num)
+        {
+            num = 0;
+            int count=softList.Count();
+            List<Soft> list = new List<Soft>();
+            for (int i = 0; i < baseNum; i++)
+            {
+                if (count > currNum)
+                {
+                    list.Add(softList[currNum]);
+                    currNum++;
+                }
+                else
+                {
+                    break;
+                }
+                
+            }
+            num = list.Count();
+            return list;
+        }
 
         /// <summary>
         /// 进度显示-总
