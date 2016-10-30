@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace ZXXK_Index.Function
+namespace ZXXK_ElasticSearchWeb.Function
 {
     /// <summary>
     /// 配置类
