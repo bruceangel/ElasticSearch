@@ -71,6 +71,7 @@
     <Compile Include="DAL\SoftDal.cs" />
     <Compile Include="DBUtility\DBConns.cs" />
     <Compile Include="Function\Config.cs" />
+    <Compile Include="Function\ElasticSearchHelper.cs" />
     <Compile Include="Model\BaseModel.cs" />
     <Compile Include="Model\ConsumeLog.cs" />
     <Compile Include="Model\Soft.cs" />

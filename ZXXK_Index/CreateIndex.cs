@@ -31,7 +31,7 @@ namespace ZXXK_Index
         //线程
         private Thread runThread;
         //ES客户端
-        private IElasticClient client;
+        private IElasticClient eClient;
 
         //业务类
         private SoftDal tSoft = new SoftDal();
@@ -55,6 +55,9 @@ namespace ZXXK_Index
             {
                 WriteLog("创建索引开始...");
 
+                //获取ES客户端对象
+                eClient = new ElasticSearchHelper(_indexName).Client;
+
                 //开启线程
                 runThread = new Thread(new ThreadStart(CreateIndexData));
                 runThread.Start();
@@ -66,12 +69,6 @@ namespace ZXXK_Index
         /// </summary>
         private void CreateIndexData()
         {
-            //创建ES连接
-            var node = new Uri(Config.GetElasticSearchUrl);
-            //var settings = new ConnectionSettings(node);
-            var settings = new ConnectionSettings(node).DefaultIndex(_indexName);
-            client = new ElasticClient(settings);
-
             //获取表数据分页参数
             BaseModel model = new BaseModel();
             model.PageSize = _pageSize;
@@ -102,7 +99,7 @@ namespace ZXXK_Index
                         //方式2：写入索引
                         curTotalParent += softList.Count;
                         //写入索引
-                        client.IndexMany(softList);
+                        eClient.IndexMany(softList);
                         //进度显示
                         SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
                     }
@@ -129,14 +126,14 @@ namespace ZXXK_Index
             //子（总个数和当前个数）            
             int sumTotalChild = softList.Count;//单次总个数
             int curTotalChild = 0;//单次累加个数
-                        
+
             //方法一：单个插入
             //for (int i = 0; i < sumTotalChild; i++)
             //{
             //    curTotalChild++;
             //    curTotalParent++;
             //    //写入索引
-            //    client.Index(softList[i]);
+            //    eClient.Index(softList[i]);
             //    //进度显示
             //    SetTextMesssage(100 * (i + 1) / sumTotalChild, "总索引：" + curTotalParent + "   子索引：" + curTotalChild + "   ID：" + softList[i].SoftID, sumTotalChild, i + 1);
             //    SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
@@ -150,7 +147,7 @@ namespace ZXXK_Index
             {
                 int resultListCount = 0;
                 //写入索引
-                client.IndexMany(PartialSoftList(softList, baseNum, ref currNum, out resultListCount));
+                eClient.IndexMany(PartialSoftList(softList, baseNum, ref currNum, out resultListCount));
                 curTotalChild += resultListCount;
                 curTotalParent += resultListCount;
                 //进度显示
