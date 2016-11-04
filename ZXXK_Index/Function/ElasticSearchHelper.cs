@@ -42,7 +42,6 @@ namespace ZXXK_Index.Function
             {
                 return _client;
             }
-
             set
             {
                 _client = value;
