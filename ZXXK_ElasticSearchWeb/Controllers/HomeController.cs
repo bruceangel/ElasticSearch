@@ -69,16 +69,39 @@ namespace ZXXK_ElasticSearchWeb.Controllers
                 .Size(15)
                 .Aggregations(ag => ag
                     .ValueCount("Count", vc => vc.Field(f => f.SoftPoint))//总数
-                    .Sum("Sum",vc=>vc.Field(f=>f.SoftPoint))//求和
-                    .Max("Max",vc=>vc.Field(f=>f.SoftPoint))//最大值
-                    .Min("Min",vc=>vc.Field(f=>f.SoftPoint))//最小值
-                    .Average("Avg",vc=>vc.Field(f=>f.SoftPoint))//平均值
-                    .Terms("Passed_Group",vc=>vc.Field(f=>f.Passed).Size(100))//分组
-                    .Cardinality("Passed_Group_Count",vc=>vc.Field(f=>f.Passed))//分组数量
+                    .Sum("Sum", vc => vc.Field(f => f.SoftPoint))//求和
+                    .Max("Max", vc => vc.Field(f => f.SoftPoint))//最大值
+                    .Min("Min", vc => vc.Field(f => f.SoftPoint))//最小值
+                    .Average("Avg", vc => vc.Field(f => f.SoftPoint))//平均值
+                    .Terms("Passed_Group", vc => vc.Field(f => f.Passed).Size(100))//分组
+                    .Cardinality("Passed_Group_Count", vc => vc.Field(f => f.Passed))//分组数量
                     )//聚合-基本-分组
                 );
 
             ViewData["result4"] = JsonConvert.SerializeObject(result4.Aggregations);
+
+        }
+
+        //************************************************************************************
+
+        public ActionResult LevelIndex()
+        {
+            GetElasticSearchService("zxxk");//获取ES服务
+
+            SearchLevle();
+
+            return View();
+        }
+
+        public void SearchLevle()
+        {
+            var result1 = client.Search<Soft>(s => s
+              .Query(q => q
+                .HasChild<ConsumeLog>(hc => hc.Type("consumelog"))
+              
+              )
+            );
+
         }
     }
 }
