@@ -18,7 +18,7 @@ namespace ZXXK_Index.Function
         /// 带参数构造函数
         /// </summary>
         /// <param name="indexName">索引名称</param>
-        public ElasticSearchHelper(string indexName)
+        public ElasticSearchHelper(string indexName=null)
         {
             //创建ES连接
             var node = new Uri(Config.GetElasticSearchUrl);

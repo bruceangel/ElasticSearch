@@ -164,10 +164,10 @@ namespace ZXXK_Index
         /// <param name="currNum"></param>
         /// <param name="num"></param>
         /// <returns></returns>
-        private List<Soft> PartialSoftList(List<Soft> softList, int baseNum,ref int currNum,out int num)
+        private List<Soft> PartialSoftList(List<Soft> softList, int baseNum, ref int currNum, out int num)
         {
             num = 0;
-            int count=softList.Count();
+            int count = softList.Count();
             List<Soft> list = new List<Soft>();
             for (int i = 0; i < baseNum; i++)
             {
@@ -180,7 +180,7 @@ namespace ZXXK_Index
                 {
                     break;
                 }
-                
+
             }
             num = list.Count();
             return list;
@@ -209,7 +209,7 @@ namespace ZXXK_Index
                 if (totalNumber == curTotal)
                 {
                     WriteLog("所有索引已完成...");
-                }                    
+                }
             }
         }
 
@@ -242,32 +242,31 @@ namespace ZXXK_Index
         }
 
         /// <summary>
-        /// 获取并校验界面输入值
+        /// 获取并校验创建索引需要输入的值
         /// </summary>
         private bool CheckValue()
         {
-            bool flag = true;
             _tableName = this.txtTableName.Text;
             if (string.IsNullOrEmpty(_tableName.Trim()))
             {
-                flag = false;
                 MessageBox.Show("请输入要获取数据库的表名称！");
+                return false;
             }
 
             string pageSize = this.txtPageContainer.Text;
             if (!int.TryParse(pageSize, out _pageSize))
             {
-                flag = false;
                 MessageBox.Show("容量输入错误，请重新输入正确的容量数！");
+                return false;
             }
 
             _indexName = this.txtIndexName.Text;
             if (string.IsNullOrEmpty(_indexName.Trim()))
             {
-                flag = false;
                 MessageBox.Show("请输入要创建索引的名称！");
+                return false;
             }
-            return flag;
+            return true;
         }
 
         /// <summary>
@@ -289,6 +288,51 @@ namespace ZXXK_Index
         private void ConsoleWriteResult(string msg)
         {
             this.txtResult.AppendText(msg + "\r\n");
+        }
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnDelIndex_Click(object sender, EventArgs e)
+        {
+            bool flag = false;
+            string indexName = this.txtDelIndexName.Text.Trim();
+            if (string.IsNullOrEmpty(this.txtDelIndexName.Text.Trim()))
+            {
+                MessageBox.Show("请输入要删除的索引名称！");
+                return;
+            }
+            string typeName = this.txtDelTypeName.Text.Trim();
+            try
+            {
+                //获取ES客户端对象
+                var client = new ElasticSearchHelper().Client;
+                if (!string.IsNullOrEmpty(typeName))//删除类型
+                {
+                    //client.DeleteByQuery();
+                    this.txtResult.AppendText("删除类型功能待完善！");
+                }
+                else//删除索引
+                {
+                    var indexResult = client.DeleteIndex(indexName);
+                    flag = indexResult.IsValid;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.txtResult.AppendText("获取ES客户端对象失败：" + ex.StackTrace);
+            }
+
+            if (flag)
+            {
+                MessageBox.Show("删除索引或类型成功！");
+            }
+            else
+            {
+                MessageBox.Show("删除索引或类型失败！");
+            }
         }
 
     }

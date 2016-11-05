@@ -53,15 +53,18 @@
             this.txtIndexName = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnDelIndex = new System.Windows.Forms.Button();
+            this.txtDelTypeName = new System.Windows.Forms.TextBox();
+            this.txtDelIndexName = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btCreateIndex
             // 
-            this.btCreateIndex.Location = new System.Drawing.Point(455, 351);
+            this.btCreateIndex.Location = new System.Drawing.Point(455, 37);
             this.btCreateIndex.Name = "btCreateIndex";
-            this.btCreateIndex.Size = new System.Drawing.Size(75, 23);
+            this.btCreateIndex.Size = new System.Drawing.Size(97, 39);
             this.btCreateIndex.TabIndex = 0;
             this.btCreateIndex.Text = "创建索引";
             this.btCreateIndex.UseVisualStyleBackColor = true;
@@ -212,7 +215,7 @@
             this.txtResult.Multiline = true;
             this.txtResult.Name = "txtResult";
             this.txtResult.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtResult.Size = new System.Drawing.Size(410, 195);
+            this.txtResult.Size = new System.Drawing.Size(410, 199);
             this.txtResult.TabIndex = 17;
             // 
             // label2
@@ -276,29 +279,56 @@
             this.label6.TabIndex = 2;
             this.label6.Text = "获取容量：";
             // 
-            // button1
+            // btnDelIndex
             // 
-            this.button1.Location = new System.Drawing.Point(478, 71);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 18;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnDelIndex.Location = new System.Drawing.Point(510, 362);
+            this.btnDelIndex.Name = "btnDelIndex";
+            this.btnDelIndex.Size = new System.Drawing.Size(88, 23);
+            this.btnDelIndex.TabIndex = 18;
+            this.btnDelIndex.Text = "删除索引类型";
+            this.btnDelIndex.UseVisualStyleBackColor = true;
+            this.btnDelIndex.Click += new System.EventHandler(this.btnDelIndex_Click);
             // 
-            // textBox1
+            // txtDelTypeName
             // 
-            this.textBox1.Location = new System.Drawing.Point(478, 28);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 21);
-            this.textBox1.TabIndex = 19;
+            this.txtDelTypeName.Location = new System.Drawing.Point(510, 318);
+            this.txtDelTypeName.Name = "txtDelTypeName";
+            this.txtDelTypeName.Size = new System.Drawing.Size(88, 21);
+            this.txtDelTypeName.TabIndex = 19;
+            // 
+            // txtDelIndexName
+            // 
+            this.txtDelIndexName.Location = new System.Drawing.Point(510, 278);
+            this.txtDelIndexName.Name = "txtDelIndexName";
+            this.txtDelIndexName.Size = new System.Drawing.Size(88, 21);
+            this.txtDelIndexName.TabIndex = 19;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(453, 281);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(65, 12);
+            this.label13.TabIndex = 2;
+            this.label13.Text = "索引名称：";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(452, 321);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(65, 12);
+            this.label14.TabIndex = 2;
+            this.label14.Text = "类型名称：";
             // 
             // CreateIndex
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(636, 497);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(621, 494);
+            this.Controls.Add(this.txtDelIndexName);
+            this.Controls.Add(this.txtDelTypeName);
+            this.Controls.Add(this.btnDelIndex);
             this.Controls.Add(this.txtResult);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label3);
@@ -315,6 +345,8 @@
             this.Controls.Add(this.progressBarIndexAll);
             this.Controls.Add(this.progressBarIndex);
             this.Controls.Add(this.label6);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.label13);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.txtIndexName);
             this.Controls.Add(this.label2);
@@ -324,8 +356,10 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtTableName);
             this.Controls.Add(this.btCreateIndex);
+            this.MaximizeBox = false;
             this.Name = "CreateIndex";
-            this.Text = "创建索引";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "创建ES索引";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -358,8 +392,11 @@
         private System.Windows.Forms.TextBox txtIndexName;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnDelIndex;
+        private System.Windows.Forms.TextBox txtDelTypeName;
+        private System.Windows.Forms.TextBox txtDelIndexName;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
     }
 }
 
