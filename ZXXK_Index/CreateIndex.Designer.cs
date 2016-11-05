@@ -58,13 +58,14 @@
             this.txtDelIndexName = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
+            this.btnParentIndex = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btCreateIndex
             // 
-            this.btCreateIndex.Location = new System.Drawing.Point(455, 37);
+            this.btCreateIndex.Location = new System.Drawing.Point(470, 67);
             this.btCreateIndex.Name = "btCreateIndex";
-            this.btCreateIndex.Size = new System.Drawing.Size(97, 39);
+            this.btCreateIndex.Size = new System.Drawing.Size(97, 31);
             this.btCreateIndex.TabIndex = 0;
             this.btCreateIndex.Text = "创建索引";
             this.btCreateIndex.UseVisualStyleBackColor = true;
@@ -321,6 +322,16 @@
             this.label14.TabIndex = 2;
             this.label14.Text = "类型名称：";
             // 
+            // btnParentIndex
+            // 
+            this.btnParentIndex.Location = new System.Drawing.Point(470, 24);
+            this.btnParentIndex.Name = "btnParentIndex";
+            this.btnParentIndex.Size = new System.Drawing.Size(97, 31);
+            this.btnParentIndex.TabIndex = 0;
+            this.btnParentIndex.Text = "创建zxxk索引";
+            this.btnParentIndex.UseVisualStyleBackColor = true;
+            this.btnParentIndex.Click += new System.EventHandler(this.btnParentIndex_Click);
+            // 
             // CreateIndex
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -355,6 +366,7 @@
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtTableName);
+            this.Controls.Add(this.btnParentIndex);
             this.Controls.Add(this.btCreateIndex);
             this.MaximizeBox = false;
             this.Name = "CreateIndex";
@@ -397,6 +409,7 @@
         private System.Windows.Forms.TextBox txtDelIndexName;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button btnParentIndex;
     }
 }
 

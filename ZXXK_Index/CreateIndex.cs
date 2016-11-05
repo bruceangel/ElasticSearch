@@ -335,5 +335,32 @@ namespace ZXXK_Index
             }
         }
 
+        /// <summary>
+        /// 创建zxxk索引（soft\consumelog父子级类型）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnParentIndex_Click(object sender, EventArgs e)
+        {
+            //获取ES客户端对象
+            var client = new ElasticSearchHelper().Client;
+
+            //基本配置
+            IIndexState indexState = new IndexState()
+            {
+                Settings = new IndexSettings()
+                {
+                    NumberOfReplicas = 1,//副本数
+                    NumberOfShards = 5   //分片数
+                }
+            };
+            //创建soft\consumelog父子级类型
+            client.CreateIndex("zxxk", p => p.InitializeUsing(indexState)
+                 .Mappings(m => m.Map<Soft>(s => s.AutoMap()))
+                 .Mappings(m => m.Map<ConsumeLog>(c => c.Parent(typeof(Soft)).AutoMap()))                   
+                );
+
+            MessageBox.Show("创建索引zxxk（父类型soft,子类型consumelog）成功！");
+        }
     }
 }
