@@ -68,6 +68,7 @@
     <Compile Include="CreateIndex.Designer.cs">
       <DependentUpon>CreateIndex.cs</DependentUpon>
     </Compile>
+    <Compile Include="DAL\ConsumeLogDal.cs" />
     <Compile Include="DAL\SoftDal.cs" />
     <Compile Include="DBUtility\DBConns.cs" />
     <Compile Include="Function\Config.cs" />

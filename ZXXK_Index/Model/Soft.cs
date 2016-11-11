@@ -11,7 +11,7 @@ namespace ZXXK_Index.Model
     /// 资料表实体类
     /// </summary>
     [Serializable]
-    [ElasticsearchType(IdProperty = "SoftID")]
+    [ElasticsearchType(IdProperty = "SoftID", Name = "soft")]
     public class Soft
     {
         #region Model        
@@ -371,6 +371,9 @@ namespace ZXXK_Index.Model
         //[String(Index = FieldIndexOption.NotAnalyzed)]
         ///// 如需使用坐标点类型需添加坐标点特性，在maping时会自动映射类型。
         //[GeoPoint(Name = "ZuoBiao", LatLon = true)]
+        //值如果为空，则保存null
+        //[String(NullValue = "null")]
+        //[JsonProperty(NullValueHandling = NullValueHandling.Include)]
         #endregion
     }
 }

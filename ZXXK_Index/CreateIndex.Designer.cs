@@ -59,15 +59,16 @@
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.btnParentIndex = new System.Windows.Forms.Button();
+            this.btCreateChildIndex = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btCreateIndex
             // 
-            this.btCreateIndex.Location = new System.Drawing.Point(470, 67);
+            this.btCreateIndex.Location = new System.Drawing.Point(432, 28);
             this.btCreateIndex.Name = "btCreateIndex";
             this.btCreateIndex.Size = new System.Drawing.Size(97, 31);
             this.btCreateIndex.TabIndex = 0;
-            this.btCreateIndex.Text = "创建索引";
+            this.btCreateIndex.Text = "创建索引数据";
             this.btCreateIndex.UseVisualStyleBackColor = true;
             this.btCreateIndex.Click += new System.EventHandler(this.btCreateIndex_Click);
             // 
@@ -324,19 +325,29 @@
             // 
             // btnParentIndex
             // 
-            this.btnParentIndex.Location = new System.Drawing.Point(470, 24);
+            this.btnParentIndex.Location = new System.Drawing.Point(549, 49);
             this.btnParentIndex.Name = "btnParentIndex";
             this.btnParentIndex.Size = new System.Drawing.Size(97, 31);
             this.btnParentIndex.TabIndex = 0;
-            this.btnParentIndex.Text = "创建zxxk索引";
+            this.btnParentIndex.Text = "创建父子索引";
             this.btnParentIndex.UseVisualStyleBackColor = true;
             this.btnParentIndex.Click += new System.EventHandler(this.btnParentIndex_Click);
+            // 
+            // btCreateChildIndex
+            // 
+            this.btCreateChildIndex.Location = new System.Drawing.Point(432, 72);
+            this.btCreateChildIndex.Name = "btCreateChildIndex";
+            this.btCreateChildIndex.Size = new System.Drawing.Size(97, 31);
+            this.btCreateChildIndex.TabIndex = 0;
+            this.btCreateChildIndex.Text = "创建子索引数据";
+            this.btCreateChildIndex.UseVisualStyleBackColor = true;
+            this.btCreateChildIndex.Click += new System.EventHandler(this.btCreateChildIndex_Click);
             // 
             // CreateIndex
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(621, 494);
+            this.ClientSize = new System.Drawing.Size(658, 494);
             this.Controls.Add(this.txtDelIndexName);
             this.Controls.Add(this.txtDelTypeName);
             this.Controls.Add(this.btnDelIndex);
@@ -367,6 +378,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtTableName);
             this.Controls.Add(this.btnParentIndex);
+            this.Controls.Add(this.btCreateChildIndex);
             this.Controls.Add(this.btCreateIndex);
             this.MaximizeBox = false;
             this.Name = "CreateIndex";
@@ -410,6 +422,7 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Button btnParentIndex;
+        private System.Windows.Forms.Button btCreateChildIndex;
     }
 }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using Nest;
+using Newtonsoft.Json;
 
 namespace ZXXK_Index.Model
 {
@@ -11,7 +12,7 @@ namespace ZXXK_Index.Model
     /// 资料下载日志表实体类
     /// </summary>
     [Serializable]
-    [ElasticsearchType(IdProperty = "ID")]
+    [ElasticsearchType(IdProperty = "ID", Name = "consumelog")]
     public class ConsumeLog
     {
         #region Model  
@@ -24,7 +25,7 @@ namespace ZXXK_Index.Model
         /// <summary>
         /// 学科ID
         /// </summary>
-        [String(Name = "eSoftID")]
+        [String(Name = "eChannelID")]
         public int ChannelID { get; set; }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace ZXXK_Index.Model
         /// <summary>
         /// 下载用户ID
         /// </summary>
-        [Number(NumberType.Long), String(Name = "eUserID")]
+        [String(Name = "eUserID")]
         public int UserID { get; set; }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace ZXXK_Index.Model
         /// <summary>
         /// 消费储值
         /// </summary>
-        [String(Name = "eConsumeSoftPoint")]
+        [String(Name = "eConsumeSoftMoney")]
         public decimal ConsumeSoftMoney { set; get; }
 
         /// <summary>
@@ -138,7 +139,8 @@ namespace ZXXK_Index.Model
         /// <summary>
         /// 下载接口（1=网校通，2=网学通，3=视频通，4=普通计点，5=普通计天，6=绑定IP高端网校通）
         /// </summary>
-        [String(Name = "eDownInterface")]
+        [String(Name = "eDownInterface",NullValue="null")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public int DownInterface { get; set; }
 
         #endregion

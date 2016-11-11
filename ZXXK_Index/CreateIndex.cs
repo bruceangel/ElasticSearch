@@ -1,4 +1,5 @@
-﻿using Nest;
+﻿using Elasticsearch.Net;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,7 +36,7 @@ namespace ZXXK_Index
 
         //业务类
         private SoftDal tSoft = new SoftDal();
-
+        private ConsumeLogDal tConsumeLog = new ConsumeLogDal();
         #endregion
 
         public CreateIndex()
@@ -43,6 +44,7 @@ namespace ZXXK_Index
             InitializeComponent();
         }
 
+        #region 创建索引数据
         /// <summary>
         /// 创建索引
         /// </summary>
@@ -65,7 +67,7 @@ namespace ZXXK_Index
         }
 
         /// <summary>
-        /// 创建索引
+        /// 创建索引数据
         /// </summary>
         private void CreateIndexData()
         {
@@ -109,7 +111,7 @@ namespace ZXXK_Index
             {
                 WriteLog("线程意外终止:" + ex.StackTrace);
                 runThread.Interrupt();//结束线程
-                runThread.Join();
+                return;
             }
             runThread.Interrupt();//结束线程
             //runThread.Join();////使调用线程runThread在此之前执行完毕。t.join(1000); //等待 t 线程，等待时间是1000毫秒；
@@ -185,6 +187,101 @@ namespace ZXXK_Index
             num = list.Count();
             return list;
         }
+        #endregion
+
+        #region 创建索引数据-子
+        /// <summary>
+        /// 创建子索引数据
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btCreateChildIndex_Click(object sender, EventArgs e)
+        {
+            //校验          
+            if (CheckValue())
+            {
+                WriteLog("创建索引开始...");
+
+                //获取ES客户端对象
+                eClient = new ElasticSearchHelper(_indexName).Client;
+
+                //开启线程
+                runThread = new Thread(new ThreadStart(CreateChildIndexData));
+                runThread.Start();
+            }            
+        }
+
+        /// <summary>
+        /// 创建子索引数据
+        /// </summary>
+        private void CreateChildIndexData()
+        {
+            //获取表数据分页参数
+            BaseModel model = new BaseModel();
+            model.PageSize = _pageSize;
+
+            //总（总个数和当前个数）
+            int sumTotalParent = tConsumeLog.GetConsumeLogCount();//获取表总数量
+            int curTotalParent = 0;
+            if (sumTotalParent <= 0)
+            {
+                ConsoleWriteResult("查找表" + _tableName + "数据为空！");
+                return;
+            }
+
+            //循环次数
+            int loopCount = (int)Math.Ceiling(sumTotalParent * 1.0 / _pageSize);
+            List<ConsumeLog> list = null;
+            try
+            {
+                for (int i = 1; i <= loopCount; i++)
+                {
+                    model.PageIndex = i;
+                    list = tConsumeLog.GetConsumeLogList(model);
+                    if (list != null && list.Count > 0)
+                    {
+                        //写入索引
+                        WriteChildIndex(sumTotalParent, list, ref curTotalParent);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLog("线程意外终止:" + ex.StackTrace);
+                runThread.Interrupt();//结束线程
+                return;
+            }
+            runThread.Interrupt();//结束线程
+            //runThread.Join();////使调用线程runThread在此之前执行完毕。t.join(1000); //等待 t 线程，等待时间是1000毫秒；
+        }
+
+        /// <summary>
+        /// 写入索引
+        /// </summary>
+        /// <param name="totalNumber">表总个数</param>
+        /// <param name="list">单次集合</param>
+        /// <returns></returns>
+        private void WriteChildIndex(int sumTotalParent, List<ConsumeLog> list, ref int curTotalParent)
+        {
+            //子（总个数和当前个数）            
+            int sumTotalChild = list.Count;//单次总个数
+            int curTotalChild = 0;//单次累加个数
+
+            //单个插入
+            for (int i = 0; i < sumTotalChild; i++)
+            {
+                curTotalChild++;
+                curTotalParent++;
+                //写入索引
+                //eClient.Index(list[i]);
+                eClient.Index(list[i],x=>x.Index(_indexName).Parent(list[i].InfoID.ToString()));
+                //进度显示
+                SetTextMesssage(100 * (i + 1) / sumTotalChild, "总索引：" + curTotalParent + "   子索引：" + curTotalChild + "   ID：" + list[i].ID, sumTotalChild, i + 1);
+                SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// 进度显示-总
@@ -346,21 +443,39 @@ namespace ZXXK_Index
             var client = new ElasticSearchHelper().Client;
 
             //基本配置
-            IIndexState indexState = new IndexState()
-            {
-                Settings = new IndexSettings()
-                {
-                    NumberOfReplicas = 1,//副本数
-                    NumberOfShards = 5   //分片数
-                }
-            };
-            //创建soft\consumelog父子级类型
-            client.CreateIndex("zxxk", p => p.InitializeUsing(indexState)
-                 .Mappings(m => m.Map<Soft>(s => s.AutoMap()))
-                 .Mappings(m => m.Map<ConsumeLog>(c => c.Parent(typeof(Soft)).AutoMap()))                   
-                );
+            //IIndexState indexState = new IndexState()
+            //{
+            //    Settings = new IndexSettings()
+            //    {
+            //        NumberOfReplicas = 1,//副本数
+            //        NumberOfShards = 5   //分片数
+            //    }
+            //};
+            ////创建soft\consumelog父子级类型
+            //client.CreateIndex("zxxk", p => p.InitializeUsing(indexState)
+            //     .Mappings(m => m
+            //         .Map<Soft>(s => s.AutoMap())
+            //         .Map<ConsumeLog>(c => c.AutoMap().Parent<Soft>())
+            //         )
+            //    );
 
-            MessageBox.Show("创建索引zxxk（父类型soft,子类型consumelog）成功！");
+
+            // 根据数据类型生成相应的ES数据类型
+            var descriptor = new CreateIndexDescriptor("zxxk")
+                .Mappings(map => map
+                    .Map<Soft>(tm => tm.AutoMap())
+                    .Map<ConsumeLog>(tm => tm.AutoMap().Parent<Soft>())
+                );
+            var result = client.CreateIndex(descriptor);
+            if (result.Acknowledged)
+            {
+                MessageBox.Show("创建索引zxxk（父类型soft,子类型consumelog）成功！");
+            }
+            else
+            {
+                MessageBox.Show("创建索引zxxk（父类型soft,子类型consumelog）失败！");
+            }
         }
+
     }
 }
