@@ -33,5 +33,6 @@ namespace ZXXK_Index.Function
                 return GetAppSettings("ElasticSearchUrl");
             }
         }
+
     }
 }

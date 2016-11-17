@@ -1,0 +1,16 @@
+﻿[
+    {
+        "DataBaseTableName": "Cl_Soft",
+        "GetTableDataPageSize": 1000,
+        "IsCreateChildType": "false",
+        "CreateIndexName": "zxxk",
+        "CreateTypeName": "soft"
+    },
+    {
+        "DataBaseTableName": "Cl_ConsumeLog",
+        "GetTableDataPageSize": 1000,
+        "IsCreateChildType": "true",
+        "CreateIndexName": "zxxk",
+        "CreateTypeName": "consumelog"
+    }
+]

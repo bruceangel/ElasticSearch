@@ -1,10 +1,12 @@
 ﻿using Elasticsearch.Net;
 using Nest;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,6 +21,13 @@ namespace ZXXK_Index
     public partial class CreateIndex : Form
     {
         #region 业务承载区
+        //当前ES配置集合索引
+        int eConfigListIndex = 0;
+        //ES配置集合
+        List<ElasticConfig> eConfigList;
+        //当前ES配置
+        ElasticConfig eConfig;
+
         //表名
         private string _tableName = string.Empty;
         //获取表数据容量
@@ -42,6 +51,32 @@ namespace ZXXK_Index
         public CreateIndex()
         {
             InitializeComponent();
+
+            //初始化ES配置
+            InitializeElasticSearchConfig();
+        }
+
+        /// <summary>
+        /// 初始化ES配置集合
+        /// </summary>
+        private void InitializeElasticSearchConfig()
+        {
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + "Config\\ElasticConfig.json";
+            eConfigList = CommonHelper<ElasticConfig>.GetListByFilePath(path);
+
+            //初始化当前ES配置
+            if (eConfigList != null && eConfigList.Count > 0)
+            {
+                eConfig = new ElasticConfig();
+                eConfig.DataBaseTableName = eConfigList[0].DataBaseTableName;
+                eConfig.GetTableDataPageSize = eConfigList[0].GetTableDataPageSize;
+                eConfig.CreateIndexName = eConfigList[0].CreateIndexName;
+                eConfig.CreateTypeName = eConfigList[0].CreateTypeName;
+                eConfig.IsCreateChildType = eConfigList[eConfigListIndex].IsCreateChildType;
+
+                //是否禁用子类型按钮
+                IsEnabledButton(eConfig.IsCreateChildType);
+            }
         }
 
         #region 创建索引数据
@@ -208,7 +243,7 @@ namespace ZXXK_Index
                 //开启线程
                 runThread = new Thread(new ThreadStart(CreateChildIndexData));
                 runThread.Start();
-            }            
+            }
         }
 
         /// <summary>
@@ -274,7 +309,7 @@ namespace ZXXK_Index
                 curTotalParent++;
                 //写入索引
                 //eClient.Index(list[i]);
-                eClient.Index(list[i],x=>x.Index(_indexName).Parent(list[i].InfoID.ToString()));
+                eClient.Index(list[i], x => x.Index(_indexName).Parent(list[i].InfoID.ToString()));
                 //进度显示
                 SetTextMesssage(100 * (i + 1) / sumTotalChild, "总索引：" + curTotalParent + "   子索引：" + curTotalChild + "   ID：" + list[i].ID, sumTotalChild, i + 1);
                 SetTextMesssageAll(100 * curTotalParent / sumTotalParent, sumTotalParent, curTotalParent);
@@ -366,6 +401,7 @@ namespace ZXXK_Index
             return true;
         }
 
+        #region 日志
         /// <summary>
         /// 记录日志
         /// </summary>
@@ -386,6 +422,7 @@ namespace ZXXK_Index
         {
             this.txtResult.AppendText(msg + "\r\n");
         }
+        #endregion
 
         /// <summary>
         /// 删除
@@ -439,10 +476,20 @@ namespace ZXXK_Index
         /// <param name="e"></param>
         private void btnParentIndex_Click(object sender, EventArgs e)
         {
+            //索引名称
+            string indexName = "zxxk";
+
             //获取ES客户端对象
             var client = new ElasticSearchHelper().Client;
 
-            //基本配置
+            //是否存在要创建的索引
+            if (client.IndexExists(indexName).Exists)
+            {
+                MessageBox.Show("要创建的zxxk索引已存在，请先删除索引在创建！");
+                return;
+            }
+
+            //方式1：基本配置
             //IIndexState indexState = new IndexState()
             //{
             //    Settings = new IndexSettings()
@@ -459,9 +506,8 @@ namespace ZXXK_Index
             //         )
             //    );
 
-
-            // 根据数据类型生成相应的ES数据类型
-            var descriptor = new CreateIndexDescriptor("zxxk")
+            //方式2：根据数据类型生成相应的ES数据类型
+            var descriptor = new CreateIndexDescriptor(indexName)
                 .Mappings(map => map
                     .Map<Soft>(tm => tm.AutoMap())
                     .Map<ConsumeLog>(tm => tm.AutoMap().Parent<Soft>())
@@ -474,6 +520,56 @@ namespace ZXXK_Index
             else
             {
                 MessageBox.Show("创建索引zxxk（父类型soft,子类型consumelog）失败！");
+            }
+        }
+
+        /// <summary>
+        /// 换一换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnChange_Click(object sender, EventArgs e)
+        {
+            if (eConfigList != null && eConfigList.Count > 0)
+            {
+                eConfigListIndex++;//当前ES配置索引自增
+                if (eConfigListIndex == eConfigList.Count)
+                {
+                    eConfigListIndex = 0;
+                }
+
+                //当前ES配置赋值
+                eConfig.DataBaseTableName = eConfigList[eConfigListIndex].DataBaseTableName;
+                eConfig.GetTableDataPageSize = eConfigList[eConfigListIndex].GetTableDataPageSize;
+                eConfig.CreateIndexName = eConfigList[eConfigListIndex].CreateIndexName;
+                eConfig.CreateTypeName = eConfigList[eConfigListIndex].CreateTypeName;
+                eConfig.IsCreateChildType = eConfigList[eConfigListIndex].IsCreateChildType;
+
+                this.txtTableName.Text = eConfig.DataBaseTableName;
+                this.txtPageContainer.Text = eConfig.GetTableDataPageSize.ToString();
+                this.txtIndexName.Text = eConfig.CreateIndexName;
+                this.txtTypeName.Text = eConfig.CreateTypeName;
+
+                //是否禁用子类型按钮
+                IsEnabledButton(eConfig.IsCreateChildType);
+            }
+        }
+
+        /// <summary>
+        /// 禁用页面Button
+        /// </summary>
+        /// <param name="flag"></param>
+        private void IsEnabledButton(bool flag)
+        {
+            if (flag)
+            {
+                this.btCreateIndex.Enabled = false;
+                this.btCreateChildIndex.Enabled = true;
+            }
+            else
+            {
+                this.btCreateIndex.Enabled = true;
+                this.btCreateChildIndex.Enabled = false;
             }
         }
 

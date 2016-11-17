@@ -71,10 +71,12 @@
     <Compile Include="DAL\ConsumeLogDal.cs" />
     <Compile Include="DAL\SoftDal.cs" />
     <Compile Include="DBUtility\DBConns.cs" />
+    <Compile Include="Function\CommonHelper.cs" />
     <Compile Include="Function\Config.cs" />
     <Compile Include="Function\ElasticSearchHelper.cs" />
     <Compile Include="Model\BaseModel.cs" />
     <Compile Include="Model\ConsumeLog.cs" />
+    <Compile Include="Model\ElasticConfig.cs" />
     <Compile Include="Model\Soft.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,7 +107,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Config\ElasticConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
