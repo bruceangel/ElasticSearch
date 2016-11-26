@@ -410,8 +410,11 @@ namespace ZXXK_Index
         {
             //记录日志
 
-            //界面输出结果
-            ConsoleWriteResult(msg);
+            if (Config.IsOpenConsole)
+            {
+                //界面输出结果
+                ConsoleWriteResult(msg);
+            }            
         }
 
         /// <summary>

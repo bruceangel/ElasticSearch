@@ -34,5 +34,16 @@ namespace ZXXK_Index.Function
             }
         }
 
+        /// <summary>
+        /// 是否启用界面输出(false:不启用；true:启用)
+        /// </summary>
+        public static bool IsOpenConsole
+        {
+            get
+            {
+                return GetAppSettings("IsOpenConsole") == "1" ? true : false;
+            }
+        }
+
     }
 }
